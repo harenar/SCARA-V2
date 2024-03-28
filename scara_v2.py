@@ -710,3 +710,99 @@ HTML("""
 </video>
 """ % data_url)
 
+# ==============================
+# cube function
+import os
+import imageio
+
+def create_cube_video(IMAGES, delay=1, video_output_dir='cube_videos', images_output_dir='cube_images'):
+    # Create output directories if they don't exist
+    if not os.path.exists(video_output_dir):
+        os.makedirs(video_output_dir)
+    if not os.path.exists(images_output_dir):
+        os.makedirs(images_output_dir)
+
+    # Create an imageio writer to save the frames as a video
+    fps = int(1/delay)
+    print(f"processing {len(IMAGES)} images into a {fps} fps video")
+    video_filename = os.path.join(video_output_dir, 'robot_video.mp4')
+
+    # Read images and create video frames
+    video_frames = [imageio.imread(str(image)) for image in IMAGES]
+
+    # Create video
+    imageio.mimsave(video_filename, video_frames, fps=10)
+
+    print(f'Video saved as: {video_filename}')
+
+    # Saving images separately
+    for idx, image_path in enumerate(IMAGES):
+        image = imageio.imread(str(image_path))  # Read image data
+        image_filename = os.path.join(images_output_dir, f'image_{idx}.png')
+        imageio.imwrite(image_filename, image)
+        print(f'Image {idx+1} saved as: {image_filename}')
+
+    return video_filename
+
+# =============================
+# cube coordinates 
+import json
+
+# Define the side length of the cube
+cube_side_length = 5
+
+# Define the starting coordinates
+x_start = 0
+y_start = 10
+z_start = 0
+
+# Define the coordinates list
+cube_coordinates = []
+
+# Generate coordinates for the front face of the cube
+for i in range(cube_side_length + 1):
+    for j in range(cube_side_length + 1):
+        cube_coordinates.append({"x": x_start + i, "y": y_start + j, "z": z_start})
+
+# Generate coordinates for the back face of the cube
+for i in range(cube_side_length + 1):
+    for j in range(cube_side_length + 1):
+        cube_coordinates.append({"x": x_start + i, "y": y_start + j, "z": z_start + cube_side_length})
+
+# Generate coordinates for the connecting edges
+for i in range(cube_side_length + 1):
+    cube_coordinates.append({"x": x_start + i, "y": y_start, "z": z_start})
+    cube_coordinates.append({"x": x_start + i, "y": y_start + cube_side_length, "z": z_start})
+    cube_coordinates.append({"x": x_start, "y": y_start + i, "z": z_start})
+    cube_coordinates.append({"x": x_start + cube_side_length, "y": y_start + i, "z": z_start})
+
+# Store coordinates in a dictionary
+data = {
+    "delay": 0.05,
+    "coordinates": cube_coordinates
+}
+
+# Convert to JSON format
+json_data = json.dumps(data, indent=4)
+
+# Print JSON data
+print(json_data)
+
+
+
+# Call functions with data
+images, delay = process_coordinates(data)
+video = create_cube_video(images, delay)
+# =====================================
+# generate video code 
+from IPython.display import HTML
+from base64 import b64encode
+mp4 = open(video,'rb').read()
+data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+HTML("""
+<video width=400 controls>
+      <source src="%s" type="video/mp4">
+</video>
+""" % data_url)
+
+
