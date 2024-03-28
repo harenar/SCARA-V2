@@ -281,8 +281,9 @@ def create_rectangle_video(IMAGES, delay=1, video_output_dir='rectangle_videos',
 
     return video_filename
 
-# import requests
-# import json
+
+# ======================================================
+# coordinates generates
 
 data = {
     "delay": 0.05,
@@ -332,23 +333,13 @@ json_data = json.dumps(data, indent=4)
 # # Print JSON data
 print(json_data)
 
-
-
-
-
-
-
-
-
 images, delay = process_coordinates(data)
 
 video = create_rectangle_video(images, delay)
 
 
 
-
-
-
+# ============================================
 
 """### rectangle video"""
 
@@ -361,6 +352,11 @@ HTML("""
       <source src="%s" type="video/mp4">
 </video>
 """ % data_url)
+
+
+
+
+
 
 """### trangle coordiantes"""
 
@@ -395,6 +391,9 @@ def create_triangle_video(IMAGES, delay=1, video_output_dir='triangle_videos', i
         print(f'Image {idx+1} saved as: {image_filename}')
 
     return video_filename
+
+# =================================
+# coordinates generates
 
 data = {
     "delay": 0.05,
@@ -445,12 +444,10 @@ HTML("""
 </video>
 """ % data_url)
 
-
+# =================================
 
 """### circle coordinates"""
 
-import os
-import imageio
 
 def create_circle_video(IMAGES, delay=1, video_output_dir='circle_videos', images_output_dir='circle_images'):
     # Create output directories if they don't exist
@@ -481,6 +478,9 @@ def create_circle_video(IMAGES, delay=1, video_output_dir='circle_videos', image
 
     return video_filename
 
+
+# ==================================
+# generate circle coordinates
 import json
 
 data = {
@@ -537,10 +537,14 @@ HTML("""
 </video>
 """ % data_url)
 
+
+
+# ===============================
+
+
 """### square coordinates"""
 
-import os
-import imageio
+
 
 def create_square_video(IMAGES, delay=1, video_output_dir='square_videos', images_output_dir='square_images'):
     # Create output directories if they don't exist
@@ -570,6 +574,8 @@ def create_square_video(IMAGES, delay=1, video_output_dir='square_videos', image
         print(f'Image {idx+1} saved as: {image_filename}')
 
     return video_filename
+
+# generate square coordinates
 
 data = {
     "delay": 0.05,
@@ -611,6 +617,89 @@ video = create_square_video(images, delay)
 
 """### square video"""
 
+from IPython.display import HTML
+from base64 import b64encode
+mp4 = open(video,'rb').read()
+data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+HTML("""
+<video width=400 controls>
+      <source src="%s" type="video/mp4">
+</video>
+""" % data_url)
+
+
+
+# =========================
+# pentagonal 
+import os
+import imageio
+
+def create_pentagon_video(IMAGES, delay=1, video_output_dir='pentagon_videos', images_output_dir='pentagon_images'):
+    # Create output directories if they don't exist
+    if not os.path.exists(video_output_dir):
+        os.makedirs(video_output_dir)
+    if not os.path.exists(images_output_dir):
+        os.makedirs(images_output_dir)
+
+    # Create an imageio writer to save the frames as a video
+    fps = int(1/delay)
+    print(f"processing {len(IMAGES)} images into a {fps} fps video")
+    video_filename = os.path.join(video_output_dir, 'robot_video.mp4')
+
+    # Read images and create video frames
+    video_frames = [imageio.imread(str(image)) for image in IMAGES]
+
+    # Create video
+    imageio.mimsave(video_filename, video_frames, fps=10)
+
+    print(f'Video saved as: {video_filename}')
+
+    # Saving images separately
+    for idx, image_path in enumerate(IMAGES):
+        image = imageio.imread(str(image_path))  # Read image data
+        image_filename = os.path.join(images_output_dir, f'image_{idx}.png')
+        imageio.imwrite(image_filename, image)
+        print(f'Image {idx+1} saved as: {image_filename}')
+
+    return video_filename
+# =====================
+# generate pentagonal coordinates
+data = {
+    "delay": 0.1,
+    "coordinates": []
+}
+
+# Define the side length of the pentagon
+side_length = 5
+
+# Starting coordinates
+x_start = 10
+y_start = 20
+z = 0
+
+# Calculate angles for pentagon
+angle = 360 / 5
+
+# Generate coordinates for pentagon
+for i in range(5):
+    x = x_start + side_length * math.cos(math.radians(i * angle))
+    y = y_start + side_length * math.sin(math.radians(i * angle))
+    data["coordinates"].append({"x": x, "y": y, "z": z})
+
+# Add the starting point to close the pentagon
+data["coordinates"].append(data["coordinates"][0])
+
+json_data = json.dumps(data, indent=4)
+
+# Print JSON data
+print(json_data)
+
+images, delay = process_coordinates(data)
+video = create_pentagon_video(images, delay)
+
+
+# ==========
+# create video
 from IPython.display import HTML
 from base64 import b64encode
 mp4 = open(video,'rb').read()
